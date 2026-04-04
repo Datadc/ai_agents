@@ -1,7 +1,0 @@
-llama-cpp-python>=0.1.80
-pdfplumber>=0.7.5
-pytesseract>=0.3.10
-Pillow>=10.0.0
-python-multipart>=0.0.5
-fastapi>=0.110.0
-uvicorn>=0.24.0

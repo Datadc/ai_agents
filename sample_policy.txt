@@ -1,8 +1,0 @@
-Policy Number: POL-2026-001
-Policy Type: Health Insurance
-Issuer: SecureHealth Insurance Co.
-Sum Insured: $500,000
-Effective Date: 2026-01-01
-Expiry Date: 2026-12-31
-Exclusions: Pre-existing conditions not declared, cosmetic procedures, experimental treatments
-Claims Process: Submit all documentation within 30 days of incident

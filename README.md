@@ -1,49 +1,46 @@
-# Insurance Policy Audit Agent
+# ai_agents
 
-This folder contains a starter implementation for an open-source LLM-based insurance policy review agent.
+## Overview
 
-## Objectives
-- Parse uploaded policy text or policy number lookup results
-- Identify critical terms and future claim risks
-- Flag discrepancies and missing coverage items
-- Generate structured audit output
+Welcome to **ai_agents**, a comprehensive library of custom AI agents designed to automate and solve real-world challenging problems. This repository serves as a valuable resource by providing a diverse collection of AI agents that streamline day-to-day tasks and tackle complex cognitive challenges across various domains.
 
-## Tech stack
-- Python 3.11+
-- llama-cpp-python (local open-source model)
-- Optional: LangChain, FASTAPI, OCR pipeline
+## Purpose
 
-## Quick start
-1. `pip install -r requirements.txt`
-2. Place the model at `./models/ggml-model-q4_0.bin` (or supported file)
-3. `python agent.py --policy-file example-policy.txt`
+The primary goal of this repository is to empower users and developers with ready-to-use AI agents that enhance productivity and efficiency. By offering a wide range of specialized agents, ai_agents bridges the gap between advanced AI capabilities and practical applications, making sophisticated automation accessible to everyone.
+
+Whether you're looking to automate routine workflows, analyze data, generate insights, or handle intricate decision-making processes, this library provides the tools to transform how you approach problem-solving in the modern world.
 
 ## Features
-- Modular architecture under `agent_impl/`:
-  - `io.py` (PDF/text loading + OCR fallback)
-  - `parser.py` (formal field extraction)
-  - `analysis.py` (risk, discrepancy, missing coverage rules)
-  - `llm.py` (optional LLM summary with llama-cpp-python)
-  - `agent.py` (CLI entrypoint)
-- PDF ingestion: parses text via `pdfplumber`; uses `pytesseract` where needed
-- Policy text analysis:
-  - detects exposures (e.g., pre-existing exclusions, short claims windows)
-  - validates key dates and values
-  - flags missing core policy attributes
-- Output is JSON object with structured keys
 
-## Usage
-- Command-line:
-  - `python agent.py --policy-file path/to/policy.pdf --model ./models/ggml-model-q4_0.bin --out report.json`
-- `--policy-file` accepts TXT or PDF
-- `--out` saves structured JSON report
+- **Diverse Agent Collection**: Agents tailored for various industries and use cases
+- **Easy Integration**: Simple setup and deployment instructions
+- **Extensible Framework**: Build upon existing agents or create custom ones
+- **Real-World Applications**: Proven solutions for challenging problems
+- **Community-Driven**: Open-source contributions welcome
 
-## Testing
-1. `pip install pytest`
-2. `pytest -q`
+## Getting Started
 
-## Optional enhancements
-- Add FastAPI wrapper for HTTP endpoint
-- Add policy-number database/API lookup
-- Add rules for jurisdiction-specific requirements
-- Add configurable `--skip-llm` for deterministic rule-only response
+### Using as a Template
+This repository is designed as a starter kit for custom AI agents. To get started:
+
+1. **Fork or Use as Template**: Go to the [ai_agents repository on GitHub](https://github.com/Datadc/ai_agents) and click "Use this template" to create a new repository with the agent files.
+2. **Clone Your New Repo**: Clone the forked/template repository to your local machine.
+3. **Set Up in VS Code**: Open the cloned repository in VS Code with GitHub Copilot enabled. The agents in `.github/agents/` will be automatically available.
+4. **Customize Agents**: Edit the `.agent.md` files in `.github/agents/` to tailor them to your needs.
+5. **Test and Deploy**: Use the agents in your projects or deploy them further as needed (see Deployment section below).
+
+For more advanced usage, refer to the [GitHub Copilot documentation](https://docs.github.com/en/copilot) on custom agents.
+
+### Deployment Options
+- **VS Code Extension**: Package the agents into a VS Code extension for easy installation.
+- **Web App**: Host the agents as a web service for broader access.
+- **Browser Extension**: Integrate agents for web-based tasks.
+- See the full deployment guide in the repository wiki.
+
+## Contributing
+
+We welcome contributions! Please see our [contributing guidelines](CONTRIBUTING.md) for details.
+
+## License
+
+[Specify license here]
