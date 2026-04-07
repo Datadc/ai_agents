@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import sys
+import pytest
+from fastapi.testclient import TestClient
 
 from agent_impl.parser import extract_fields
 from agent_impl.analysis import (
@@ -13,6 +15,7 @@ from agent_impl.analysis import (
 from agent_impl.io import load_policy_text
 from agent_impl.llm import run_llm_assessment
 import agent
+from web import app
 from agent_impl.llm import run_llm_assessment
 
 
@@ -166,3 +169,91 @@ def test_agent_main_with_out(mock_print, mock_write_text, mock_generate_report, 
     mock_generate_report.assert_called_once_with("policy text", model_path="./models/ggml-model-q4_0.bin")
     mock_write_text.assert_called_once()
     mock_print.assert_called()
+
+
+# Web API Tests
+client = TestClient(app)
+
+
+def test_health_check():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "healthy", "service": "insurance-policy-review-agent"}
+
+
+def test_root_endpoint():
+    response = client.get("/")
+    assert response.status_code == 200
+    data = response.json()
+    assert "message" in data
+    assert "docs" in data
+    assert "health" in data
+
+
+@patch('web.generate_report')
+def test_analyze_policy_txt(mock_generate_report):
+    mock_generate_report.return_value = {
+        "policy_summary": {"policy_number": "TEST-123"},
+        "critical_findings": [],
+        "discrepancies": [],
+        "missing_criteria": [],
+        "llm_summary": "Test summary"
+    }
+
+    # Create a test TXT file content
+    txt_content = b"Policy Number: TEST-123\nPolicy type: Health insurance"
+    files = {"file": ("test_policy.txt", txt_content, "text/plain")}
+
+    response = client.post("/analyze", files=files)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["filename"] == "test_policy.txt"
+    assert "analysis" in data
+    assert data["analysis"]["policy_summary"]["policy_number"] == "TEST-123"
+
+
+@patch('web.generate_report')
+def test_analyze_policy_pdf(mock_generate_report):
+    mock_generate_report.return_value = {
+        "policy_summary": {"policy_number": "PDF-123"},
+        "critical_findings": [],
+        "discrepancies": [],
+        "missing_criteria": [],
+        "llm_summary": "PDF summary"
+    }
+
+    # Create a test PDF file content (dummy bytes)
+    pdf_content = b"%PDF-1.4\n1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n"
+    files = {"file": ("test_policy.pdf", pdf_content, "application/pdf")}
+
+    response = client.post("/analyze", files=files)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["filename"] == "test_policy.pdf"
+    assert "analysis" in data
+
+
+def test_analyze_policy_no_file():
+    response = client.post("/analyze")
+    assert response.status_code == 422  # FastAPI validation error
+
+
+def test_analyze_policy_invalid_file_type():
+    files = {"file": ("test_policy.exe", b"dummy", "application/octet-stream")}
+    response = client.post("/analyze", files=files)
+    assert response.status_code == 400
+    assert "Unsupported file type" in response.json()["detail"]
+
+
+@patch('web.generate_report')
+def test_analyze_policy_processing_error(mock_generate_report):
+    mock_generate_report.side_effect = Exception("Processing failed")
+
+    txt_content = b"Policy Number: TEST-123"
+    files = {"file": ("test_policy.txt", txt_content, "text/plain")}
+
+    response = client.post("/analyze", files=files)
+    assert response.status_code == 500
+    assert "Error processing policy file" in response.json()["detail"]
