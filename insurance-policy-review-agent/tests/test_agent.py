@@ -78,6 +78,21 @@ def test_extract_fields_from_text():
     assert fields["issuer"] == "AlphaCare Ltd."
 
 
+def test_extract_fields_from_icici_policy():
+    sample = """Name of Your Plan : ICICI Pru iProtect Smart Plus\nPolicy Number : K9376533\nSum Assured on Death : ` 2,00,00,000\nPayment frequency : Yearly\nNext premium due date : March 31, 2027\nPolicy Term : 42 years\nDate of Maturity : March 31, 2068\nName : Policybazaar Insurance Brokers Private Limited\nICICI Prudential Life Insurance Company Limited\nExclusions: loss due to suicide or attempted suicide\n"""
+    fields = extract_fields(sample)
+    assert fields["policy_number"] == "K9376533"
+    assert fields["plan_name"] == "ICICI Pru iProtect Smart Plus"
+    assert fields["sum_insured"] == "2,00,00,000"
+    assert fields["payment_frequency"] == "Yearly"
+    assert fields["next_premium_due"] == "March 31, 2027"
+    assert fields["policy_term"] == "42 years"
+    assert fields["expiry_date"] == "March 31, 2068"
+    assert fields["broker_name"] == "Policybazaar Insurance Brokers Private Limited"
+    assert fields["issuer"] == "ICICI Prudential Life Insurance Company Limited"
+    assert "suicide" in " ".join(fields["exclusions"]).lower()
+
+
 def test_extract_riders_from_text():
     sample = """Policy Number: POLICY-456\nPolicy type: Life insurance\nIssuer: SecureLife\nRiders: Critical illness rider, Accidental death benefit rider\nClaims process: submit documents within 30 days."""
     fields = extract_fields(sample)

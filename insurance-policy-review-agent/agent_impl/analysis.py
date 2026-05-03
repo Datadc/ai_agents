@@ -131,12 +131,17 @@ def analyze_riders(fields: dict) -> list:
 
 def find_discrepancies(fields: dict) -> list:
     discrepancies = []
-    if not fields["policy_number"]:
-        discrepancies.append({"field": "policy_number", "issue": "missing", "severity": "medium"})
-    if not fields["issuer"]:
-        discrepancies.append({"field": "issuer", "issue": "missing", "severity": "high"})
-    if not fields["policy_type"]:
-        discrepancies.append({"field": "policy_type", "issue": "missing", "severity": "high"})
+    required_fields = {
+        "policy_number": "missing",
+        "issuer": "missing",
+        "policy_type": "missing",
+        "sum_insured": "missing",
+        "expiry_date": "missing",
+    }
+    for field, issue in required_fields.items():
+        if not fields.get(field):
+            severity = "high" if field in {"issuer", "policy_type", "sum_insured", "expiry_date"} else "medium"
+            discrepancies.append({"field": field, "issue": issue, "severity": severity})
     return discrepancies
 
 
