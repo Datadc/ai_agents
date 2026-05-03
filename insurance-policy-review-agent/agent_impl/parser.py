@@ -11,6 +11,7 @@ def extract_fields(text: str) -> dict:
         "expiry_date": "",
         "exclusions": [],
         "claims_process": "",
+        "riders": [],
         "raw_text": text.strip(),
     }
 
@@ -34,4 +35,44 @@ def extract_fields(text: str) -> dict:
         items = re.split(r",|;", exclusions.group(1))
         out["exclusions"] = [i.strip() for i in items if i.strip()]
 
+    rider_sections = re.findall(
+        r"(?:Rider|Riders|Add[- ]on|Optional benefit|Optional coverage)[:\s]*(.+?)(?:\n|$)",
+        text,
+        re.IGNORECASE,
+    )
+    known_riders = {
+        "critical illness": "Critical Illness Rider",
+        "accidental death": "Accidental Death Benefit Rider",
+        "waiver of premium": "Waiver of Premium Rider",
+        "hospital cash": "Hospital Cash Rider",
+        "family floater": "Family Floater Rider",
+        "disability income": "Disability Income Rider",
+        "return of premium": "Return of Premium Rider",
+        "top-up": "Top-up Rider",
+        "spouse coverage": "Spouse Coverage Rider",
+        "premium waiver": "Premium Waiver Rider",
+    }
+
+    riders = []
+    for section in rider_sections:
+        items = re.split(r",|;| and |\band\b", section, flags=re.IGNORECASE)
+        for item in items:
+            item_text = item.strip()
+            if not item_text:
+                continue
+            for keyword, canonical in known_riders.items():
+                if keyword in item_text.lower():
+                    if canonical not in riders:
+                        riders.append(canonical)
+                    break
+            else:
+                if item_text not in riders:
+                    riders.append(item_text)
+
+    raw_lower = text.lower()
+    for keyword, canonical in known_riders.items():
+        if keyword in raw_lower and canonical not in riders:
+            riders.append(canonical)
+
+    out["riders"] = riders
     return out

@@ -126,10 +126,11 @@ curl -X POST "http://localhost:8000/analyze" -F "file=@policy.pdf"
 
 ### Output Structure
 The agent generates a JSON report with:
-- **policy_summary**: Extracted fields (policy number, issuer, dates, exclusions, etc.)
+- **policy_summary**: Extracted fields (policy number, issuer, dates, exclusions, riders, etc.)
 - **critical_findings**: High-severity risks and coverage gaps
 - **discrepancies**: Missing or malformed policy fields
 - **missing_criteria**: Recommended clauses not found in policy
+- **rider_analysis**: Detailed rider coverage findings and potential add-on risks
 - **llm_summary**: AI-powered analysis (if LLM available)
 
 ## Error Handling

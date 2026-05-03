@@ -10,13 +10,13 @@ from agent_impl.analysis import (
     risk_analysis,
     find_discrepancies,
     find_missing_criteria,
+    analyze_riders,
     generate_report,
 )
 from agent_impl.io import load_policy_text
 from agent_impl.llm import run_llm_assessment
 import agent
 from web import app
-from agent_impl.llm import run_llm_assessment
 
 
 def test_load_policy_text_from_string(tmp_path):
@@ -78,6 +78,13 @@ def test_extract_fields_from_text():
     assert fields["issuer"] == "AlphaCare Ltd."
 
 
+def test_extract_riders_from_text():
+    sample = """Policy Number: POLICY-456\nPolicy type: Life insurance\nIssuer: SecureLife\nRiders: Critical illness rider, Accidental death benefit rider\nClaims process: submit documents within 30 days."""
+    fields = extract_fields(sample)
+    assert "Critical Illness Rider" in fields["riders"]
+    assert "Accidental Death Benefit Rider" in fields["riders"]
+
+
 def test_match_findings_and_discrepancies():
     sample = """Policy Number: POLICY-123\nPolicy type: Health insurance\nIssuer: AlphaCare Ltd.\nSum insured: $150000\nEffective date: 2025-01-01\nExpiry date: 2025-12-31\nExclusions: pre-existing conditions not declared\nClaims process: submit documents within 30 days."""
     fields = extract_fields(sample)
@@ -133,6 +140,15 @@ def test_generate_report_contains_all_sections():
     sample = """Policy Number: POLICY-123\nPolicy type: Health insurance\nIssuer: AlphaCare Ltd.\nSum insured: $150000\nEffective date: 2025-01-01\nExpiry date: 2025-12-31\nExclusions: pre-existing conditions not declared\nClaims process: submit documents within 30 days."""
     report = generate_report(sample, model_path="./models/ggml-model-q4_0.bin")
     assert "policy_summary" in report
+    assert "rider_analysis" in report
+
+
+def test_analyze_riders_reports_expected_findings():
+    sample = """Policy Number: POLICY-456\nPolicy type: Life insurance\nIssuer: SecureLife\nRiders: Critical illness rider; Hospital cash rider\nExclusions: none\nClaims process: submit documents within 30 days."""
+    fields = extract_fields(sample)
+    findings = analyze_riders(fields)
+    assert any(x["rider"] == "Critical Illness Rider" for x in findings)
+    assert any(x["rider"] == "Hospital Cash Rider" for x in findings)
 
 
 @patch('agent.load_policy_text')

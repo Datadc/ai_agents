@@ -1,6 +1,12 @@
 from .io import load_policy_text
 from .parser import extract_fields
-from .analysis import risk_analysis, find_discrepancies, find_missing_criteria, generate_report
+from .analysis import (
+    risk_analysis,
+    find_discrepancies,
+    find_missing_criteria,
+    analyze_riders,
+    generate_report,
+)
 from .llm import run_llm_assessment
 
 __all__ = [
@@ -9,6 +15,7 @@ __all__ = [
     "risk_analysis",
     "find_discrepancies",
     "find_missing_criteria",
+    "analyze_riders",
     "run_llm_assessment",
     "generate_report",
 ]
